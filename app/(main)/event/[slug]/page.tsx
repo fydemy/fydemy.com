@@ -3,7 +3,6 @@ import { CustomMDX } from "app/components/mdx";
 import { getEventPosts } from "app/lib/fs";
 import { formatDate } from "app/lib/utils";
 import { baseUrl } from "app/sitemap";
-import { ArrowIcon } from "app/components/footer";
 import Link from "app/components/link";
 import { ShareButtons } from "app/components/share-buttons";
 
@@ -101,7 +100,7 @@ export default async function Event({ params }) {
           href={post.metadata.link}
           className="bg-gradient-to-tr from-purple-800 to-purple-600 text-white font-medium px-4 py-2 rounded-md text-sm float-right flex items-center justify-center gap-x-2 !mb-5 sm:w-auto w-full"
         >
-          Join now <ArrowIcon />
+          Join now
         </Link>
       )}
       <article className="prose">

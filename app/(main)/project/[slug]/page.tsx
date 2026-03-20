@@ -4,7 +4,6 @@ import { getProjectPosts } from "app/lib/fs";
 import { baseUrl } from "app/sitemap";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowIcon } from "app/components/footer";
 import { ShareButtons } from "app/components/share-buttons";
 
 export async function generateStaticParams() {
@@ -109,7 +108,7 @@ export default async function Project({ params }) {
           href={post.metadata.link!}
           className="bg-purple-600 text-white font-medium px-4 py-2 rounded-md text-sm flex items-center justify-center gap-x-2 sm:w-auto w-full"
         >
-          View project <ArrowIcon />
+          View project
         </Link>
       </div>
       <article className="prose">

@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { CustomMDX } from "app/components/mdx";
 import { getEventPosts, getTalentPosts } from "app/lib/fs";
 import { baseUrl } from "app/sitemap";
-import { ArrowIcon } from "app/components/footer";
 import Link from "app/components/link";
 import { ShareButtons } from "app/components/share-buttons";
 
