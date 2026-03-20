@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+* {
+  /* Use Geist's provided CSS variable to avoid font-family name mismatches. */
+  font-family: var(--font-geist-sans) !important;
+}
+
 ::selection {
   background-color: #47a3f3;
   color: #fefefe;
@@ -26,9 +31,9 @@
   color-scheme: dark;
 }
 
-/* html {
-  min-width: 360px;
-} */
+.prose {
+  letter-spacing: 0em;
+}
 
 .prose .anchor {
   @apply absolute invisible no-underline;

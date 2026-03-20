@@ -1,8 +1,6 @@
 import "./global.css";
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
-import { Navbar } from "./components/nav";
 import Footer from "./components/footer";
 import { baseUrl } from "./sitemap";
 import Script from "next/script";
@@ -17,11 +15,10 @@ export const metadata: Metadata = {
   icons: {
     icon: "/web/fav.svg",
   },
-  description: "We're community-based Software Engineering learning platform.",
+  description: "We're building open-source projects and empowering learning.",
   openGraph: {
     title: "Fydemy",
-    description:
-      "We're community-based Software Engineering learning platform.",
+    description: "We're building open-source projects and empowering learning.",
     url: baseUrl,
     siteName: "Fydemy",
     locale: "en_US",
@@ -69,7 +66,6 @@ export default function RootLayout({
       className={cx(
         "text-black bg-white dark:text-white dark:bg-black",
         GeistSans.variable,
-        GeistMono.variable
       )}
     >
       <Script
@@ -86,15 +82,14 @@ export default function RootLayout({
           });
         `}
       </Script>
-      <body className="antialiased max-w-3xl mx-4 mt-8 lg:mx-auto">
+      <body className="antialiased max-w-3xl px-0 sm:px-4 mx-auto">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <main className="flex-auto min-w-0 mt-6 flex flex-col px-2 md:px-0">
-            <Navbar />
+          <main>
             {children}
             <Footer />
           </main>
