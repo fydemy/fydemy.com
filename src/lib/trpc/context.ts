@@ -3,6 +3,8 @@ import { t } from "./trpc";
 import { auth } from "@/lib/auth";
 import { TRPCError } from "@trpc/server";
 
+export { t };
+
 export const createTRPCContext = async (): Promise<TRPCContext> => {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -17,10 +19,12 @@ export type TRPCContext = {
 
 export const publicProcedure = t.procedure;
 
+type AuthUser = NonNullable<TRPCContext["user"]>;
+
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
   if (!ctx.user) {
     throw new TRPCError({ code: "UNAUTHORIZED", message: "Unauthorized" });
   }
 
-  return next();
+  return next({ ctx: { ...ctx, user: ctx.user as AuthUser } });
 });

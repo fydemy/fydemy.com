@@ -1,18 +1,5 @@
-"use client";
-
-import { authClient } from "@/lib/auth-client";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <button
-      onClick={() =>
-        authClient.signIn.social({
-          provider: "google",
-          callbackURL: "/dashboard",
-        })
-      }
-    >
-      login
-    </button>
-  );
+  redirect("/products");
 }
