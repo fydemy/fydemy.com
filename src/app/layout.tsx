@@ -16,10 +16,10 @@ export const metadata: Metadata = {
     icon: "/fav.svg",
   },
   title: {
-    default: "Fydemy — AI RnD community",
+    default: "Fydemy — Tech RnD community",
     template: "%s | Fydemy",
   },
-  description: "Discover, submit, and vote on the best new products.",
+  description: "A tech RnD community for validation and research.",
   openGraph: {
     siteName: "Fydemy",
     type: "website",
