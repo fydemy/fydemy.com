@@ -77,19 +77,41 @@ model Verification {
 }
 
 model Product {
-  id          String          @id @default(cuid())
-  name        String
-  description String
-  logoUrl     String
-  ownerId     String
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  owner       User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  images      ProductImage[]
-  upvotes     ProductUpvote[]
-  comments    Comment[]
+  id               String          @id @default(cuid())
+  name             String
+  slug             String?         @unique
+  description      String
+  logoUrl          String?
+  ownerId          String
+  pinnedCommentId  String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  owner            User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  images           ProductImage[]
+  upvotes          ProductUpvote[]
+  comments         Comment[]
+  tags             ProductTag[]
 
   @@map("product")
+}
+
+model Tag {
+  id       String       @id @default(cuid())
+  name     String       @unique
+  isShow   Boolean      @default(true)
+  products ProductTag[]
+
+  @@map("tag")
+}
+
+model ProductTag {
+  productId String
+  tagId     String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([productId, tagId])
+  @@map("product_tag")
 }
 
 model ProductImage {

@@ -5,10 +5,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Image from "next/image";
-import { X, Upload, Loader2 } from "lucide-react";
+import { X,  Loader2, Frame, Images } from "lucide-react";
 import { uploadImage } from "@/lib/supabase";
 import { trpc } from "@/lib/trpc/client";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
 
 const schema = z.object({
   name: z.string().min(1, "Required").max(100),
@@ -18,19 +22,29 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 type Props = {
-  onSuccess?: () => void;
+  onSuccess?: (slug?: string) => void;
   defaultValues?: {
     id: string;
     name: string;
     description: string;
-    logoUrl: string;
+    logoUrl?: string | null;
     imageUrls: string[];
+    tagIds?: string[];
   };
 };
 
 export default function ProductForm({ onSuccess, defaultValues }: Props) {
   const { requireAuth } = useRequireAuth();
   const utils = trpc.useUtils();
+
+  const { data: allTags = [] } = trpc.products.tags.useQuery();
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(defaultValues?.tagIds ?? []);
+
+  const toggleTag = (id: string) => {
+    setSelectedTagIds((prev) =>
+      prev.includes(id) ? prev.filter((t) => t !== id) : prev.length < 5 ? [...prev, id] : prev
+    );
+  };
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>(defaultValues?.logoUrl ?? "");
@@ -52,17 +66,16 @@ export default function ProductForm({ onSuccess, defaultValues }: Props) {
   });
 
   const create = trpc.products.create.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
       utils.products.list.invalidate();
-      onSuccess?.();
+      onSuccess?.(data.slug ?? undefined);
     },
   });
 
   const update = trpc.products.update.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
       utils.products.list.invalidate();
-      if (defaultValues?.id) utils.products.getById.invalidate({ id: defaultValues.id });
-      onSuccess?.();
+      onSuccess?.(data.slug ?? undefined);
     },
   });
 
@@ -95,15 +108,9 @@ export default function ProductForm({ onSuccess, defaultValues }: Props) {
         setUploading(true);
         setError("");
 
-        let finalLogoUrl = defaultValues?.logoUrl ?? "";
+        let finalLogoUrl: string | undefined = defaultValues?.logoUrl ?? undefined;
         if (logoFile) {
           finalLogoUrl = await uploadImage(logoFile, "products", "logos");
-        }
-
-        if (!finalLogoUrl) {
-          setError("Please upload a logo");
-          setUploading(false);
-          return;
         }
 
         const existingUrls = defaultValues?.imageUrls ?? [];
@@ -124,6 +131,7 @@ export default function ProductForm({ onSuccess, defaultValues }: Props) {
             description: values.description,
             logoUrl: finalLogoUrl,
             imageUrls,
+            tagIds: selectedTagIds,
           });
         } else {
           await create.mutateAsync({
@@ -131,6 +139,7 @@ export default function ProductForm({ onSuccess, defaultValues }: Props) {
             description: values.description,
             logoUrl: finalLogoUrl,
             imageUrls,
+            tagIds: selectedTagIds,
           });
         }
       } catch (e) {
@@ -142,21 +151,20 @@ export default function ProductForm({ onSuccess, defaultValues }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {/* Logo */}
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-zinc-700">
-          Logo <span className="text-red-500">*</span>
+        <label className="mb-1.5 block text-sm font-medium">
+          Logo
         </label>
-        <div className="flex items-center gap-4">
           <div
             onClick={() => logoInputRef.current?.click()}
-            className="flex h-20 w-20 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 hover:border-orange-400"
+            className={`flex size-20 cursor-pointer items-center justify-center overflow-hidden ${logoPreview ? "" : "border"}`}
           >
             {logoPreview ? (
-              <Image src={logoPreview} alt="logo" width={80} height={80} className="h-full w-full object-cover" />
+              <Image src={logoPreview} alt="logo" width={56} height={56} className="h-full w-full object-cover" />
             ) : (
-              <Upload className="h-6 w-6 text-zinc-400" />
+              <Frame />
             )}
           </div>
           <input
@@ -166,63 +174,85 @@ export default function ProductForm({ onSuccess, defaultValues }: Props) {
             className="hidden"
             onChange={handleLogoChange}
           />
-          <p className="text-xs text-zinc-500">Square image, at least 256×256</p>
-        </div>
       </div>
+
 
       {/* Name */}
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-zinc-700">
-          Product Name <span className="text-red-500">*</span>
+        <label className="mb-1.5 block text-sm font-medium">
+          Name&nbsp;*
         </label>
-        <input
+        <Input
           {...register("name")}
           placeholder="My Awesome Product"
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
         />
         {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
       </div>
 
       {/* Description */}
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-zinc-700">
-          Description <span className="text-red-500">*</span>
+        <label className="mb-1.5 block text-sm font-medium">
+          Description&nbsp;*
         </label>
-        <textarea
+        <Textarea
           {...register("description")}
           rows={3}
           placeholder="What does your product do?"
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
         />
         {errors.description && (
           <p className="mt-1 text-xs text-red-500">{errors.description.message}</p>
         )}
       </div>
 
+      {/* Tags */}
+      <div>
+        <label className="mb-1.5 block text-sm font-medium">
+          Tags <span className="text-muted-foreground font-normal">(up to 5)</span>
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {allTags.map((tag) => {
+            const selected = selectedTagIds.includes(tag.id);
+            return (
+              <button
+                key={tag.id}
+                type="button"
+                onClick={() => toggleTag(tag.id)}
+              >
+                <Badge variant={selected ? "default" : "outline"}>
+                  {tag.name}
+                </Badge>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Gallery */}
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-zinc-700">
-          Gallery Photos <span className="text-zinc-400">(up to 3)</span>
+        <label className="mb-1.5 block text-sm font-medium">
+          Gallery &uarr;3
         </label>
         <div className="flex flex-wrap gap-3">
           {galleryPreviews.map((src, i) => (
-            <div key={i} className="relative h-24 w-32 overflow-hidden rounded-lg">
+            <div key={i} className="relative size-20 aspect-square overflow-hidden">
               <Image src={src} alt={`gallery ${i}`} fill className="object-cover" />
-              <button
+              <Button
                 type="button"
                 onClick={() => removeGallery(i)}
-                className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white"
+                size="icon-xs"
+                variant="outline"
+                className="absolute right-1 top-1"
               >
-                <X className="h-3 w-3" />
-              </button>
+                <X />
+              </Button>
             </div>
           ))}
           {galleryPreviews.length < 3 && (
             <div
               onClick={() => galleryInputRef.current?.click()}
-              className="flex h-24 w-32 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 hover:border-orange-400"
+              className="flex size-20 aspect-square cursor-pointer items-center justify-center border"
             >
-              <Upload className="h-5 w-5 text-zinc-400" />
+              <Images />
             </div>
           )}
           <input
@@ -235,19 +265,17 @@ export default function ProductForm({ onSuccess, defaultValues }: Props) {
           />
         </div>
       </div>
-
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
 
-      <button
-        type="submit"
+      <Button
+        className="float-end"
         disabled={uploading || create.isPending || update.isPending}
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60"
       >
         {(uploading || create.isPending || update.isPending) && (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="animate-spin" />
         )}
-        {defaultValues?.id ? "Save Changes" : "Submit Product"}
-      </button>
+        {defaultValues?.id ? "Save Changes" : "Submit"}
+      </Button>
     </form>
   );
 }

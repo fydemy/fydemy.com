@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, JetBrains_Mono, Merriweather } from "next/font/google";
+import { JetBrains_Mono, Merriweather } from "next/font/google";
 import "./globals.css";
 import TRPCLayout from "@/components/provider/trpc";
 import Navbar from "@/components/Navbar";
@@ -9,14 +9,24 @@ const merriweatherHeading = Merriweather({subsets:['latin'],variable:'--font-hea
 
 const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
 
-const geist = Geist({
-  variable: "--font-geist",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
-  title: "LaunchPad — Discover great products",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"),
+  icons: {
+    icon: "/fav.svg",
+  },
+  title: {
+    default: "Fydemy — AI RnD community",
+    template: "%s | Fydemy",
+  },
   description: "Discover, submit, and vote on the best new products.",
+  openGraph: {
+    siteName: "Fydemy",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({
@@ -25,8 +35,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-mono", jetbrainsMono.variable, merriweatherHeading.variable)}>
-      <body className={`${geist.variable} min-h-screen bg-zinc-50 antialiased`}>
+    <html lang="en" className={cn(jetbrainsMono.variable, merriweatherHeading.variable)}>
+      <body className="antialiased">
         <TRPCLayout>
           <Navbar />
           <main>{children}</main>
