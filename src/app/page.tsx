@@ -27,7 +27,7 @@ export default function Home() {
 
       <TopProducts />
 
-      <footer className="absolute bottom-2 left-2">
+      <footer>
         <Link href="https://github.com/fydemy" className={buttonVariants({ className: "w-fit", variant: "ghost" })}>
           <GitHub /> Github
         </Link>

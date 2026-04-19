@@ -207,7 +207,7 @@ export default function ProductForm({ onSuccess, defaultValues }: Props) {
       {/* Tags */}
       <div>
         <label className="mb-1.5 block text-sm font-medium">
-          Tags <span className="text-muted-foreground font-normal">(up to 5)</span>
+          Tags &uarr;5
         </label>
         <div className="flex flex-wrap gap-2">
           {allTags.map((tag) => {

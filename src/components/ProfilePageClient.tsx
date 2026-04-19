@@ -234,7 +234,7 @@ export default function ProfilePageClient({ username }: { username: string }) {
           )}
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-6">
           {profile.products?.map((product) => (
             <ProductCard
               key={product.id}
