@@ -4,7 +4,10 @@ import { t } from "../trpc";
 import { applicantProcedure, staffProcedure } from "../context";
 import { prisma } from "@/lib/prisma";
 import { isMentor } from "@/lib/auth-helpers";
-import { findApplicationsForUser } from "@/lib/application-access";
+import {
+  findApprovedApplicationForUser,
+  findApplicationsForUser,
+} from "@/lib/application-access";
 import { ensureApplicationWorkspace } from "@/lib/application-workspace";
 import { DEFAULT_APPLICATION_COHORT } from "@/lib/cohort";
 import { sendApplicationReceivedEmail } from "@/lib/email";
@@ -19,6 +22,7 @@ import {
   ideaStageHasDeckAlternative,
   isIdeaStage,
   normalizeApplicantForm,
+  parseScreeningPayload,
 } from "@/lib/screening";
 
 const memberSchema = z.object({
@@ -166,6 +170,52 @@ export const applicationRouter = t.router({
 
       return application;
     }),
+
+  listAccepted: applicantProcedure.query(async ({ ctx }) => {
+    const user = { id: ctx.user.id, email: ctx.user.email };
+    const approved = await findApprovedApplicationForUser(user);
+
+    if (!approved) {
+      return [];
+    }
+
+    const ownApplications = await findApplicationsForUser(user);
+    const ownIds = ownApplications.map((application) => application.id);
+
+    const applications = await prisma.application.findMany({
+      where: {
+        status: "APPROVED",
+        ...(ownIds.length > 0 ? { id: { notIn: ownIds } } : {}),
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        logoUrl: true,
+        linkedin: true,
+        user: { select: { name: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return applications.map((application) => {
+      const payload = parseScreeningPayload(application.description);
+      return {
+        id: application.id,
+        linkedin:
+          application.linkedin ||
+          payload?.form.founder.founder_contact ||
+          "",
+        name:
+          payload?.form.founder.founder_name?.trim() ||
+          application.user.name,
+        logoUrl: application.logoUrl,
+        companyName: application.name,
+        productDescription:
+          payload?.form.company.product_description?.trim() || "",
+      };
+    });
+  }),
 
   getWorkspace: staffProcedure
     .input(z.object({ applicationId: z.string() }))

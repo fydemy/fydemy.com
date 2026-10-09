@@ -42,9 +42,9 @@ function graticuleMeridians(rotation: number) {
   return [-90, -60, -30, 0, 30, 60, 90].map((lng) => {
     const points: string[] = [];
     let drawing = false;
-    for (let lat = -85; lat <= 85; lat += 4) {
+    for (let lat = -85; lat <= 85; lat += 3) {
       const p = project(lat, lng, rotation);
-      if (p.z > -0.08) {
+      if (p.z > -0.05) {
         points.push(`${drawing ? "L" : "M"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`);
         drawing = true;
       } else {
@@ -59,7 +59,7 @@ function graticuleParallels(rotation: number) {
   return [-60, -30, 0, 30, 60].map((lat) => {
     const points: string[] = [];
     let drawing = false;
-    for (let lng = -180; lng <= 180; lng += 4) {
+    for (let lng = -180; lng <= 180; lng += 3) {
       const p = project(lat, lng, rotation);
       if (p.z > 0.02) {
         points.push(`${drawing ? "L" : "M"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`);
@@ -249,27 +249,69 @@ export function SketchGlobe({ className }: { className?: string }) {
           <clipPath id="globe-clip">
             <circle cx={CX} cy={CY} r={R} />
           </clipPath>
+          <radialGradient
+            id="globe-ocean"
+            cx="38%"
+            cy="32%"
+            r="68%"
+            fx="34%"
+            fy="28%"
+          >
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.03" />
+            <stop offset="55%" stopColor="currentColor" stopOpacity="0.07" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0.16" />
+          </radialGradient>
+          <radialGradient
+            id="globe-limb"
+            cx="50%"
+            cy="50%"
+            r="50%"
+          >
+            <stop offset="70%" stopColor="currentColor" stopOpacity="0" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0.18" />
+          </radialGradient>
+          <radialGradient
+            id="globe-spec"
+            cx="32%"
+            cy="28%"
+            r="42%"
+          >
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.08" />
+            <stop offset="55%" stopColor="currentColor" stopOpacity="0" />
+          </radialGradient>
         </defs>
 
+        {/* Soft outer atmosphere ring */}
         <circle
           cx={CX}
           cy={CY}
-          r={R + 6}
+          r={R + 8}
           fill="none"
           stroke="currentColor"
-          strokeWidth="0.5"
-          opacity="0.12"
+          strokeWidth="0.6"
+          opacity="0.08"
+        />
+        <circle
+          cx={CX}
+          cy={CY}
+          r={R + 3}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="0.8"
+          opacity="0.14"
+          strokeDasharray="1.5 4"
         />
 
         <g clipPath="url(#globe-clip)">
+          <circle cx={CX} cy={CY} r={R} fill="url(#globe-ocean)" />
           <circle
             cx={CX}
             cy={CY}
             r={R}
-            className="fill-muted/25"
+            fill="none"
             stroke="currentColor"
-            strokeWidth="1.1"
-            strokeDasharray="4 5"
+            strokeWidth="1.15"
+            opacity="0.55"
           />
 
           {parallels.map(({ lat, d }) =>
@@ -279,9 +321,9 @@ export function SketchGlobe({ className }: { className?: string }) {
                 d={d}
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="0.45"
-                opacity="0.14"
-                strokeDasharray="2 7"
+                strokeWidth={lat === 0 ? 0.55 : 0.4}
+                opacity={lat === 0 ? 0.22 : 0.12}
+                strokeDasharray={lat === 0 ? "3 5" : "1.5 6"}
                 strokeLinecap="round"
               />
             ) : null,
@@ -294,9 +336,9 @@ export function SketchGlobe({ className }: { className?: string }) {
                 d={d}
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="0.45"
-                opacity="0.14"
-                strokeDasharray="2 7"
+                strokeWidth={lng === 0 ? 0.55 : 0.4}
+                opacity={lng === 0 ? 0.2 : 0.11}
+                strokeDasharray={lng === 0 ? "3 5" : "1.5 6"}
                 strokeLinecap="round"
               />
             ) : null,
@@ -306,29 +348,33 @@ export function SketchGlobe({ className }: { className?: string }) {
             <g key={land.key}>
               <path
                 d={land.d}
-                className="fill-foreground/[0.09]"
+                className="fill-foreground/[0.11]"
                 stroke="none"
               />
+              {/* Offset ghost stroke — sketch double-pass */}
               <path
                 d={land.d}
                 fill="none"
-                className="stroke-foreground/50"
-                strokeWidth="0.95"
+                className="stroke-foreground/15"
+                strokeWidth="1.8"
                 strokeLinejoin="round"
                 strokeLinecap="round"
-                strokeDasharray="6 3 2 4"
+                transform="translate(0.55 0.65)"
               />
               <path
                 d={land.d}
                 fill="none"
-                className="stroke-foreground/20"
-                strokeWidth="1.6"
+                className="stroke-foreground/55"
+                strokeWidth="1.05"
                 strokeLinejoin="round"
                 strokeLinecap="round"
-                transform="translate(0.4 0.5)"
+                strokeDasharray="7 2.5 1.5 3.5"
               />
             </g>
           ))}
+
+          <circle cx={CX} cy={CY} r={R} fill="url(#globe-limb)" />
+          <circle cx={CX} cy={CY} r={R} fill="url(#globe-spec)" />
         </g>
 
         <g aria-hidden>

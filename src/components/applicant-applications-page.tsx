@@ -25,6 +25,12 @@ export function ApplicantApplicationsPage() {
   const [showForm, setShowForm] = useState(false);
   const [pendingDiscordJoin, setPendingDiscordJoin] = useState(false);
 
+  const isAccepted = Boolean(data?.approved);
+  const { data: acceptedPeers, isLoading: acceptedLoading } =
+    trpc.application.listAccepted.useQuery(undefined, {
+      enabled: isAccepted,
+    });
+
   if (isLoading) {
     return <Skeleton className="mx-auto mt-12 h-96 w-full max-w-3xl" />;
   }
@@ -194,6 +200,57 @@ export function ApplicantApplicationsPage() {
           </CardContent>
         </Card>
       ))}
+
+      {isAccepted && (
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-xl font-semibold tracking-tight">
+              Accepted applicants
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Other founders accepted into the program.
+            </p>
+          </div>
+          {acceptedLoading ? (
+            <Skeleton className="h-40 w-full" />
+          ) : (acceptedPeers ?? []).length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No other accepted applicants yet.
+            </p>
+          ) : (
+            (acceptedPeers ?? []).map((peer) => (
+              <Card key={peer.id}>
+                <CardHeader className="flex flex-row items-start gap-3">
+                  <ProductLogo
+                    src={peer.logoUrl}
+                    name={peer.companyName}
+                    size="md"
+                  />
+                  <div className="min-w-0 space-y-1">
+                    <CardTitle>{peer.companyName}</CardTitle>
+                    <CardDescription>{peer.name}</CardDescription>
+                    {peer.productDescription && (
+                      <p className="text-sm text-muted-foreground">
+                        {peer.productDescription}
+                      </p>
+                    )}
+                    {peer.linkedin && (
+                      <a
+                        href={peer.linkedin}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-block text-sm text-primary underline"
+                      >
+                        LinkedIn
+                      </a>
+                    )}
+                  </div>
+                </CardHeader>
+              </Card>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }

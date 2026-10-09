@@ -130,7 +130,7 @@ export function FounderFlowDiagram({
         >
           <FlowNode>Apply</FlowNode>
           <ConnectorDown />
-          <FlowNode>Review & Choose Option<br />(can be simultaneously)</FlowNode>
+          <FlowNode>Review & Choose Option<br />(can be simultaneously and optionally)</FlowNode>
           <ConnectorSplit />
 
           <div className="my-4 grid w-full grid-cols-1 gap-10 md:grid-cols-3 md:gap-6 lg:gap-8">

@@ -38,17 +38,20 @@ export function GlobeLandingPage() {
           </p>
         </div>
 
-       <div className="bg-gradient-to-tl from-purple-600 to-transparent p-1 rounded-full">
-        <Link
-            href={siteConfig.discordInviteUrl}
-            target="_blank"
-            rel="noreferrer"
-            className={buttonVariants({
-              className: "rounded-full! px-10 py-6",
-            })}
-          >
-            <ArrowRight /> General Community
-          </Link>
+       <div className="bg-gradient-to-tl from-blue-600 to-transparent p-1 rounded-full">
+        <Button
+          onClick={() =>
+            hasSession
+              ? router.push("/app")
+              : authClient.signIn.social({
+                  provider: "google",
+                  callbackURL: "/app",
+                })
+          }
+          className="rounded-full px-10 py-6"
+        >
+          <ArrowRight /> {hasSession ? "Dashboard" : "Apply Now"}
+        </Button>
        </div>
 
         <div className="flex items-center justify-center gap-3">
@@ -70,21 +73,18 @@ export function GlobeLandingPage() {
         <FounderFlowDiagram className="w-full max-w-3xl" />
 
        <div className="flex flex-col gap-6 md:flex-row mb-16 items-center justify-center">
-        <div className="bg-gradient-to-tl from-blue-600 to-transparent p-1 rounded-full w-fit">
-            <Button
-              onClick={() =>
-                hasSession
-                  ? router.push("/app")
-                  : authClient.signIn.social({
-                      provider: "google",
-                      callbackURL: "/app",
-                    })
-              }
-              className="rounded-full px-10 py-6"
-            >
-            <ArrowRight /> {hasSession ? "Dashboard" : "Apply Now"}
-            </Button>
-          </div>
+        <div className="bg-gradient-to-tl from-purple-600 to-transparent p-1 rounded-full w-fit">
+          <Link
+            href={siteConfig.discordInviteUrl}
+            target="_blank"
+            rel="noreferrer"
+            className={buttonVariants({
+              className: "rounded-full! px-10 py-6",
+            })}
+          >
+            <ArrowRight /> Group
+          </Link>
+        </div>
           <div className="bg-gradient-to-tl from-purple-600 to-transparent p-1 rounded-full">
           <Link className={buttonVariants({ className: "rounded-full! px-10 py-6" })} target="_blank" rel="noreferrer" href="https://cal.com/nathanl/partnerships">
             Become a Partner
@@ -115,7 +115,7 @@ export function GlobeLandingPage() {
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
                 <p>
-                  Yes, just join our general community and we'll help you find a startup to work at.
+                  Yes, just join our group and we&apos;ll help you find a startup to work at.
                 </p>
               </AccordionContent>
             </AccordionItem>
