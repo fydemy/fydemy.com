@@ -2,7 +2,7 @@
   "name": "fdm",
   "version": "0.1.0",
   "private": true,
-  "description": "Fydemy — product applications, reviews, and shared materials",
+  "description": "Fydemy \u2014 product applications, reviews, and shared materials",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -22,7 +22,8 @@
     "lint": "eslint",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "check:comments": "sh scripts/check-comments.sh"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

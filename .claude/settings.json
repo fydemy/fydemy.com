@@ -18,6 +18,17 @@
             "statusMessage": "Checking for AI attribution"
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/no-multiline-comments.sh",
+            "timeout": 10,
+            "statusMessage": "Checking comment style"
+          }
+        ]
       }
     ]
   }

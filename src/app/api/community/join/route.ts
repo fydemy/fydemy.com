@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { siteConfig } from "@/lib/seo";
-import { addFounderToCommunity } from "@/lib/discord";
+import { assignFounderRole } from "@/lib/gateway";
 import { findApprovedApplicationForUser } from "@/lib/community-access";
 
 export async function POST() {
@@ -44,9 +44,11 @@ export async function POST() {
     console.error("[discord] getAccessToken failed", error);
   }
 
-  const result = await addFounderToCommunity({
+  // The gateway owns the guild id, so it returns the community url too.
+  const result = await assignFounderRole({
     discordUserId: discord.accountId,
     accessToken,
+    fallbackUrl: siteConfig.discordInviteUrl,
   });
 
   if (!result.ok && !accessToken) {
