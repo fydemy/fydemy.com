@@ -6,10 +6,12 @@ import { materialRouter } from "./routes/material";
 import { mentorRouter } from "./routes/mentor";
 import { partnerRouter } from "./routes/partner";
 import { userRouter } from "./routes/user";
+import { inviteRouter } from "./routes/invite";
 
 export const appRouter = t.router({
   hello: helloRouter,
   user: userRouter,
+  invite: inviteRouter,
   application: applicationRouter,
   review: reviewRouter,
   mentor: mentorRouter,

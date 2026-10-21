@@ -27,6 +27,7 @@ model User {
   applications   Application[]
   materialItems  MaterialItem[]
   staffFiles     ApplicationStaffFile[]
+  invitesSent    Invite[]
 
   @@map("user")
 }
@@ -183,6 +184,20 @@ model ApplicationKanbanLog {
 
   @@index([applicationId])
   @@map("application_kanban_log")
+}
+
+model Invite {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  role        String
+  invitedById String
+  invitedBy   User      @relation(fields: [invitedById], references: [id], onDelete: Cascade)
+  acceptedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([invitedById])
+  @@map("invite")
 }
 
 model ApplicationStaffFile {

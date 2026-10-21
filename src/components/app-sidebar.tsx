@@ -20,6 +20,7 @@ import { Logo } from "@/components/ui/optimized-image";
 import {
   ClipboardCheckIcon,
   FileTextIcon,
+  MailIcon,
   MessageCircleIcon,
   PackageIcon,
 } from "lucide-react";
@@ -59,6 +60,17 @@ const staffNav: NavItem[] = [
   discordNavItem,
 ];
 
+const reviewerNav: NavItem[] = [
+  staffNav[0],
+  staffNav[1],
+  {
+    title: "Invites",
+    url: "/app/invites",
+    icon: <MailIcon />,
+  },
+  discordNavItem,
+];
+
 const partnerNav: NavItem[] = [
   {
     title: "Applications",
@@ -81,7 +93,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const nav = React.useMemo(() => {
     if (!me) return null;
-    if (me.isReviewer) return { items: staffNav, label: "Review" };
+    if (me.isReviewer) return { items: reviewerNav, label: "Review" };
     if (me.isMentor) return { items: staffNav, label: "Mentor" };
     if (me.isPartner) return { items: partnerNav, label: "Partner" };
     return {

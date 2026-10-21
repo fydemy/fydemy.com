@@ -5,6 +5,7 @@ import { findApprovedApplicationForUser } from "@/lib/application-access";
 import {
   canAccessApplicantWorkspace,
   canAccessWorkspace,
+  isReviewer,
 } from "@/lib/auth-helpers";
 
 type SessionPayload = {
@@ -38,6 +39,17 @@ export default async function proxy(request: NextRequest) {
 
   if (!sessionData?.user?.id) {
     return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  if (pathname.startsWith("/app/invites")) {
+    const user = await prisma.user.findUnique({
+      where: { id: sessionData.user.id },
+      select: { role: true },
+    });
+
+    if (!user || !isReviewer(user.role)) {
+      return NextResponse.redirect(new URL("/app", request.url));
+    }
   }
 
   if (pathname.startsWith("/workspace")) {

@@ -19,7 +19,9 @@ import { Check, X } from "lucide-react";
 
 function applicationIdFromPath(pathname: string) {
   const match = pathname.match(/^\/app\/([^/]+)$/);
-  return match?.[1] ?? null;
+  const id = match?.[1] ?? null;
+  if (!id || id === "invites") return null;
+  return id;
 }
 
 export function ApplicationReviewHeaderActions() {

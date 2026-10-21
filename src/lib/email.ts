@@ -1,4 +1,6 @@
 import { Resend } from "resend";
+import type { UserRole } from "@/lib/auth-helpers";
+import { inviteEmailContent } from "@/lib/invite-email";
 import { siteConfig } from "@/lib/seo";
 
 const from = process.env.RESEND_FROM_EMAIL ?? "Fydemy <onboarding@resend.dev>";
@@ -86,6 +88,16 @@ export async function sendApplicationApprovedEmail(input: {
       "",
       "Welcome aboard!",
     ]),
+  });
+}
+
+export async function sendInviteEmail(input: { to: string; role: UserRole }) {
+  const email = inviteEmailContent(input.role);
+
+  return sendEmail({
+    to: input.to,
+    subject: email.subject,
+    text: email.text,
   });
 }
 

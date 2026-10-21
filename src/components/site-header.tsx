@@ -16,6 +16,7 @@ const titles: Record<string, string> = {
 
 function getTitle(pathname: string) {
   if (titles[pathname]) return titles[pathname];
+  if (pathname === "/app/invites") return "Invites";
   if (pathname.startsWith("/app/")) return "Application";
   return "Dashboard";
 }
